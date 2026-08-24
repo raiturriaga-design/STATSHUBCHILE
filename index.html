@@ -348,6 +348,12 @@ main{padding:17px}.screen{display:none}.screen.active{display:block}.hero,.box,.
 </section>
 </main></div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const SUPABASE_URL = 'https://gehuzdxxzddfhafzxvzh.supabase.co';
+  const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_VGK73xicNc9ZFCHHHHCYfA_4Fgf76lr';
+  const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+</script>
 <script>
 let home=82,away=76,selected='Mateo Pérez',selectedTeam='home',history=[];
 let friendlyPlayers=[];
