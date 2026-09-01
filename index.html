@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#07111f">
-<title>STATS HUB CHILE · V12.3.2</title>
+<title>STATS HUB CHILE · V12.4.2</title>
 <style>
 :root{
   --bg:#030810;--card:#091523;--card2:#0e1e2f;--line:#1a344b;
@@ -111,7 +111,7 @@ input,select{padding:11px;background:#07121e;border:1px solid var(--line);border
 @media(max-width:1000px){.grid{grid-template-columns:repeat(3,1fr)}.layout3{grid-template-columns:1fr}.actionBox{position:static;order:-1}.cards{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:650px){main{padding:9px}.hero h1{font-size:28px}.grid{grid-template-columns:repeat(2,1fr)}.cards{grid-template-columns:1fr}.form,.setupTeams{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}.leaderGrid{grid-template-columns:1fr}.scoreNumber{font-size:30px}.score{gap:10px}.hero{padding:18px}}
 
-/* V12.3.2 · Convocatoria rápida desde la planilla */
+/* V12.4.2 · Convocatoria rápida desde la planilla */
 .rosterModal{position:fixed;inset:0;background:rgba(3,9,18,.82);z-index:9999;display:none;align-items:center;justify-content:center;padding:16px}
 .rosterModal.show{display:flex}
 .rosterCard{width:min(680px,100%);max-height:88vh;overflow:auto;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;box-shadow:0 20px 60px rgba(0,0,0,.45)}
@@ -294,11 +294,26 @@ td:last-child{border-radius:0 9px 9px 0}
 }
 </style>
 
+
+<style id="v12-player-profile">
+.playerHero{display:flex;align-items:center;gap:14px;padding:18px;border-radius:20px;background:linear-gradient(135deg,rgba(32,212,255,.12),rgba(139,108,255,.12));border:1px solid rgba(101,231,255,.16);margin-bottom:14px}
+.playerAvatar{width:62px;height:62px;border-radius:18px;display:grid;place-items:center;background:linear-gradient(135deg,#16bde9,#3d7cff);font-size:27px;box-shadow:0 10px 25px rgba(32,212,255,.18)}
+.playerHero h1{margin:0;font-size:21px}.playerHero .sub{margin-top:5px;color:var(--muted);font-size:9px}
+.playerStatGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0}
+.playerStatBox{padding:13px 10px;border-radius:14px;background:rgba(12,29,48,.82);border:1px solid rgba(92,148,190,.14);text-align:center}
+.playerStatBox small{display:block;color:var(--muted);font-size:7px;font-weight:900}.playerStatBox b{display:block;font-size:18px;margin-top:4px;color:var(--cyan2)}
+.playerProfileSection{margin-top:14px}.playerProfileSection h2{font-size:13px;margin:0 0 9px}
+.playerGameRow{display:grid;grid-template-columns:76px 1fr auto;gap:10px;align-items:center;padding:11px 12px;margin-bottom:7px;border:1px solid rgba(92,148,190,.12);background:rgba(12,29,48,.70);border-radius:13px}
+.playerGameDate{font-size:8px;color:var(--muted)}.playerGameTeams{font-size:9px;font-weight:900}.playerGameOpp{font-size:7px;color:var(--muted);margin-top:3px}
+.playerGameStats{text-align:right;font-size:8px;color:var(--cyan2);font-weight:900}.playerGameStats span{display:block;color:var(--muted);font-size:7px;margin-top:2px}
+@media(max-width:650px){.playerStatGrid{grid-template-columns:repeat(2,1fr)}.playerGameRow{grid-template-columns:58px 1fr;}.playerGameStats{grid-column:2;text-align:left}}
+</style>
+
 </head>
 <body>
 <div class="app">
 <header>
-  <div class="brand"><div class="logo">🏀</div><div>STATS<span>HUB CHILE</span><small>V12.3.2 · PLATAFORMA DE ESTADÍSTICAS</small></div></div>
+  <div class="brand"><div class="logo">🏀</div><div>STATS<span>HUB CHILE</span><small>V12.4.2 · PLATAFORMA DE ESTADÍSTICAS</small></div></div>
   <div class="avatar">SH</div>
 </header>
 <nav><div class="navin">
@@ -314,7 +329,7 @@ td:last-child{border-radius:0 9px 9px 0}
 <main>
 <section id="home" class="screen active">
   <div class="hero">
-    <div class="eyebrow">V12.3.2 · MESA ESTADÍSTICA + GESTIÓN DEPORTIVA</div>
+    <div class="eyebrow">V12.4.2 · MESA ESTADÍSTICA + GESTIÓN DEPORTIVA</div>
     <h1>El deporte chileno,<br>medido en datos.</h1>
     <p class="muted">Una base sólida para registrar jugadores, equipos, clubes, torneos y partidos, con una mesa estadística en vivo.</p>
     <div class="actions">
@@ -397,7 +412,7 @@ td:last-child{border-radius:0 9px 9px 0}
  </div>
 </div>
 <div class="quickAdd"><button class="btn alt" onclick="show('register')">＋ Registrar nuevo jugador</button><span>Después de registrarlo, vuelve al partido para seleccionarlo.</span></div>
-<p class="setupNote">💡 V12.3.2 conecta directamente <b>Jugadores → Equipos → Partido</b>. Marca los jugadores de cada plantilla y quedarán convocados automáticamente.</p><br>
+<p class="setupNote">💡 V12.4.2 conecta directamente <b>Jugadores → Equipos → Partido</b>. Marca los jugadores de cada plantilla y quedarán convocados automáticamente.</p><br>
 <button class="btn" onclick="saveGame()">🏀 Crear partido y abrir mesa</button></div></section>
 
 <section id="live" class="screen"><button class="back" onclick="show('games')">← Partidos</button>
@@ -436,6 +451,12 @@ td:last-child{border-radius:0 9px 9px 0}
 
 <div class="reportSection box"><div class="head"><h2>🏅 Líderes del partido</h2><span class="badge">EN VIVO</span></div><div class="leaderGrid" id="leaders"></div></div>
 <div class="reportSection box"><div class="head"><h2>📊 Box Score</h2><span class="badge">AUTOMÁTICO</span></div><div class="tableWrap"><table class="reportTable"><thead><tr><th>#</th><th>Jugador</th><th>Equipo</th><th>PTS</th><th>REB</th><th>AST</th><th>ROB</th><th>TAP</th><th>PER</th><th>FAL</th><th>EF</th></tr></thead><tbody id="reportBody"></tbody></table></div></div>
+</section>
+
+
+<section id="playerDetail" class="screen">
+  <button class="back" onclick="show('players')">← Jugadores</button>
+  <div id="playerPage"></div>
 </section>
 
 <section id="teamDetail" class="screen"><button class="back" onclick="show('teams')">← Equipos</button><div id="teamPage"></div></section>
@@ -539,9 +560,16 @@ function render(){
   if(liveGame!==null && db.games[liveGame])renderLive();
 }
 function playerAggregate(i){
-  let pj=0,pts=0,reb=0,ast=0;
-  db.games.forEach(g=>{if([...(g.homePlayers||[]),...(g.awayPlayers||[])].includes(i)){pj++;const s=g.playerStats?.[i];if(s){pts+=Number(s.pts||0);reb+=Number(s.reb||0);ast+=Number(s.ast||0)}}});
-  return {pj,pts,reb,ast};
+  let pj=0,pts=0,reb=0,ast=0,stl=0,blk=0,tov=0,pf=0;
+  db.games.forEach(g=>{
+    if([...(g.homePlayers||[]),...(g.awayPlayers||[])].some(id=>Number(id)===Number(i))){
+      pj++;
+      const s=g.playerStats?.[i]||g.playerStats?.[String(i)]||{};
+      pts+=Number(s.pts||0); reb+=Number(s.reb||0); ast+=Number(s.ast||0);
+      stl+=Number(s.stl||0); blk+=Number(s.blk||0); tov+=Number(s.tov||0); pf+=Number(s.pf||s.fouls||0);
+    }
+  });
+  return {pj,pts,reb,ast,stl,blk,tov,pf};
 }
 
 function addDeleteButtonsToRenderedLists(){
@@ -629,10 +657,58 @@ function renderReports(){const rows=reportRows(),body=document.getElementById('r
 function registerOfficial(i){const g=db.games[i];if(!g)return;if(!isOfficial(i)){db.officialGames.push({...JSON.parse(JSON.stringify(g)),sourceId:i,officialAt:new Date().toISOString()});save();toast('Partido validado')}}
 function removeOfficial(i){db.officialGames.splice(i,1);save();toast('Quitado de oficiales')}
 function deleteGame(i){const g=db.games[i];if(!g)return;if(!confirm(`¿Borrar el partido ${g.home||''} vs ${g.away||''} y sus estadísticas?`))return;db.games.splice(i,1);db.officialGames=db.officialGames.filter(x=>x.sourceId!==i).map(x=>({...x,sourceId:Number(x.sourceId)>i?Number(x.sourceId)-1:x.sourceId}));liveGame=null;save();render();show('games');toast('Partido eliminado')}
-function playerInfo(i){const p=db.players[i],a=playerAggregate(i);alert(`${p.name}\n#${p.num||'-'} · ${p.position||'Jugador'}\n${p.category||''}\n${p.team||p.club||'Sin equipo'} · ${p.city||''}\n\nPJ: ${a.pj} · PTS: ${a.pts} · REB: ${a.reb} · AST: ${a.ast}`)}
+function playerInfo(i){
+  const p=db.players[i]; if(!p)return;
+  const a=playerAggregate(i);
+  const games=[];
+  db.games.forEach((g,gi)=>{
+    const ids=[...(g.homePlayers||[]),...(g.awayPlayers||[])].map(Number);
+    if(!ids.includes(Number(i)))return;
+    const isHome=(g.homePlayers||[]).map(Number).includes(Number(i));
+    const s=g.playerStats?.[i]||g.playerStats?.[String(i)]||{};
+    games.push({g,gi,isHome,s});
+  });
+  const avg=(v)=>a.pj?(Number(v)/a.pj).toFixed(1):'0.0';
+  const initials=(p.name||'J').trim().split(/\s+/).slice(0,2).map(x=>x[0]).join('').toUpperCase();
+  const gameRows=games.length?games.slice().reverse().map(x=>{
+    const g=x.g, opp=x.isHome?g.away:g.home;
+    const score=`${g.homeScore||0}—${g.awayScore||0}`;
+    return `<div class="playerGameRow" onclick="openGame(${x.gi})">
+      <div class="playerGameDate">${esc(g.date||'Sin fecha')}<br>${esc(g.type||'PARTIDO')}</div>
+      <div><div class="playerGameTeams">${x.isHome?'🏠':'✈️'} ${esc(x.isHome?g.home:g.away)} <span class="muted">${score}</span></div>
+      <div class="playerGameOpp">Rival: ${esc(opp)} · ${esc(g.place||'Sin recinto')}</div></div>
+      <div class="playerGameStats">${Number(x.s.pts||0)} PTS · ${Number(x.s.reb||0)} REB · ${Number(x.s.ast||0)} AST<span>${Number(x.s.stl||0)} ROB · ${Number(x.s.blk||0)} TAP · ${Number(x.s.tov||0)} PER · ${Number(x.s.pf||x.s.fouls||0)} FAL</span></div>
+    </div>`;
+  }).join(''):'<div class="muted">Este jugador todavía no tiene partidos registrados.</div>';
+
+  document.getElementById('playerPage').innerHTML=`
+    <div class="playerHero">
+      <div class="playerAvatar">${esc(initials)}</div>
+      <div><h1>${esc(p.name)}</h1>
+      <div class="sub">#${esc(p.num||'-')} · ${esc(p.position||'Jugador')} · ${esc(p.category||'General')}</div>
+      <div class="sub">🏀 ${esc(p.team||p.club||'Sin equipo')} ${p.city?' · '+esc(p.city):''}</div></div>
+    </div>
+
+    <div class="playerStatGrid">
+      <div class="playerStatBox"><small>PARTIDOS</small><b>${a.pj}</b></div>
+      <div class="playerStatBox"><small>PUNTOS</small><b>${a.pts}</b><small>AVG ${avg(a.pts)}</small></div>
+      <div class="playerStatBox"><small>REBOTES</small><b>${a.reb}</b><small>AVG ${avg(a.reb)}</small></div>
+      <div class="playerStatBox"><small>ASISTENCIAS</small><b>${a.ast}</b><small>AVG ${avg(a.ast)}</small></div>
+      <div class="playerStatBox"><small>ROBOS</small><b>${a.stl}</b><small>AVG ${avg(a.stl)}</small></div>
+      <div class="playerStatBox"><small>TAPONES</small><b>${a.blk}</b><small>AVG ${avg(a.blk)}</small></div>
+      <div class="playerStatBox"><small>PÉRDIDAS</small><b>${a.tov}</b><small>AVG ${avg(a.tov)}</small></div>
+      <div class="playerStatBox"><small>FALTAS</small><b>${a.pf}</b><small>AVG ${avg(a.pf)}</small></div>
+    </div>
+
+    <div class="playerProfileSection box">
+      <h2>📊 Estadísticas por partido</h2>
+      ${gameRows}
+    </div>`;
+  show('playerDetail');
+}
 function teamInfo(i){const t=db.teams[i];document.getElementById('teamPage').innerHTML=`<div class="detail"><div class="clubhero"><div class="clublogo">🏀</div><div><h1>${esc(t.name)}</h1><div class="muted">${esc(t.category)} · ${esc(t.city)}</div></div></div><div class="stats"><div class="mini"><small>JUGADORES</small><b>${countTeamPlayers(t.name)}</b></div><div class="mini"><small>PARTIDOS</small><b>${countTeamGames(t.name)}</b></div></div><div class="section box"><div class="head"><h2>👥 Plantilla</h2><span class="badge">${countTeamPlayers(t.name)}</span></div>${db.players.filter(p=>p.team===t.name).map(p=>`<div class="event"><span>#${esc(p.num||'-')} · <b>${esc(p.name)}</b> · ${esc(p.position||'Jugador')}</span><span>✓</span></div>`).join('')||'<div class="muted">Sin jugadores asignados.</div>'}</div></div>`;show('teamDetail')}
 function clubInfo(i){const c=db.clubs[i];document.getElementById('clubPage').innerHTML=`<div class="detail"><div class="clubhero"><div class="clublogo">🏢</div><div><h1>${esc(c.name)}</h1><div class="muted">${esc(c.sport)} · ${esc(c.city)}</div></div></div><p class="muted">Contacto: ${esc(c.contact||'No informado')}</p></div>`;show('clubDetail')}
-function exportData(){const blob=new Blob([JSON.stringify(db,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='STATS_HUB_CHILE_V12.3.2_RESPALDO.json';a.click();URL.revokeObjectURL(a.href);toast('Respaldo exportado')}
+function exportData(){const blob=new Blob([JSON.stringify(db,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='STATS_HUB_CHILE_V12.4.2_RESPALDO.json';a.click();URL.revokeObjectURL(a.href);toast('Respaldo exportado')}
 function importData(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{db=normalize(JSON.parse(r.result));save();toast('Respaldo restaurado')}catch(x){alert('Archivo no válido')}};r.readAsText(f);e.target.value=''}
 function clearAll(){if(!confirm('Esto borrará jugadores, equipos, clubes, torneos y partidos de este navegador. ¿Continuar?'))return;db=JSON.parse(JSON.stringify(emptyDB));localStorage.setItem(KEY,JSON.stringify(db));render();show('home');toast('Datos borrados')}
 
