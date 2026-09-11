@@ -1276,6 +1276,12 @@ header.scTopbar:before{display:none!important}
 .v17Cloud{color:#70e5ff;font-weight:800}.v17Ready{color:#35dda1;font-weight:800}.v17AccountActions{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px}
 @media(max-width:700px){.v17PlayActions .btn{flex:1;min-width:125px}}
 </style>
+
+<style id="v21-4-no-playbyplay">
+.actionUndoBar{display:flex;justify-content:flex-end;margin-top:10px;padding:0;background:transparent;border:0;box-shadow:none}
+.undoActionBtn{border:1px solid rgba(93,220,255,.22);background:rgba(31,167,220,.08);color:#9defff;border-radius:10px;padding:9px 12px;font-weight:850;cursor:pointer}
+.undoActionBtn:hover{background:rgba(31,167,220,.14);transform:translateY(-1px)}
+</style>
 </head>
 <body>
 <div class="app">
@@ -1417,7 +1423,7 @@ header.scTopbar:before{display:none!important}
    <button class="action" onclick="act('TOV')">⚠️<small>PÉRDIDA</small></button>
    <button class="action" onclick="act('FOUL')">🚨<small>FALTA</small></button>
   </div>
-  <div class="section"><div class="head"><h2>⚡ Play-by-play</h2><span class="link" onclick="undoLast()">↩ Deshacer</span></div><div class="feed" id="feed"></div></div>
+  <div class="section actionUndoBar"><button class="link undoActionBtn" onclick="undoLast()">↩ Deshacer última acción</button></div>
  </div>
  <div class="box roster"><div class="rosterTitle"><h2>✈️ <span id="awayRosterName">Visita</span></h2><span class="sideTag">VISITA</span></div><div class="rosterList" id="awayRoster"></div></div>
 </div>
@@ -3554,6 +3560,147 @@ window.addEventListener('load',()=>setTimeout(shInit,50));
 }
 </style>
 
+
+<style id="v20-8-fix-css">
+.v20JerseyHero{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-top:14px;padding:14px 16px;border:1px solid rgba(54,220,255,.18);border-radius:16px;background:linear-gradient(135deg,rgba(54,220,255,.08),rgba(105,80,255,.08))}
+.v20JerseyHero b{display:block;font-size:25px;color:#8af0ff;margin-top:4px}.v20JerseyHero span{font-size:9px;font-weight:900;letter-spacing:.12em;color:#91a9ba}.v20JerseyHero p{margin:0;max-width:430px;color:#91a9ba;font-size:9px;line-height:1.5}.v20JerseyHero p b{display:inline;font-size:9px;color:#fff}
+@media(max-width:650px){.v20JerseyHero{align-items:flex-start;flex-direction:column}.v20JerseyHero p{max-width:none}}
+</style>
+
+
+<style id="v22-pro-upgrade">
+.v22Tools{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0}
+.v22Tools button{border:1px solid rgba(75,220,255,.22);background:linear-gradient(135deg,rgba(20,52,82,.95),rgba(18,30,62,.95));color:#eafcff;border-radius:14px;padding:11px 14px;font-weight:900;cursor:pointer;box-shadow:0 8px 24px rgba(0,0,0,.18)}
+.v22Tools button:hover{transform:translateY(-1px);border-color:rgba(75,220,255,.55)}
+.v22Tools .danger{border-color:rgba(255,90,110,.3);color:#ffd8de}
+.v22Backup{display:none;margin-top:10px;padding:14px;border-radius:16px;background:linear-gradient(135deg,rgba(13,34,58,.96),rgba(17,25,53,.96));border:1px solid rgba(80,220,255,.16)}
+.v22Backup.open{display:block}
+.v22Backup b{display:block;margin-bottom:5px}.v22Backup small{color:#9db4c8}
+.v22Badge{display:inline-flex;align-items:center;gap:6px;padding:5px 9px;border-radius:999px;background:rgba(65,220,255,.09);border:1px solid rgba(65,220,255,.18);color:#8eeeff;font-size:11px;font-weight:900}
+@media(max-width:650px){.v22Tools{display:grid;grid-template-columns:1fr 1fr}.v22Tools button{width:100%;box-sizing:border-box}}
+</style>
+<script id="v22-pro-upgrade">
+(function(){
+ 'use strict';
+ const V22_BACKUP_KEY='statshub_chile_v22_last_backup';
+ function getDB(){try{return (typeof db!=='undefined'&&db)?db:null}catch(e){return null}}
+ function normalizeDB(x){
+   x=x||{};
+   x.players=Array.isArray(x.players)?x.players:[];
+   x.teams=Array.isArray(x.teams)?x.teams:[];
+   x.clubs=Array.isArray(x.clubs)?x.clubs:[];
+   x.tournaments=Array.isArray(x.tournaments)?x.tournaments:[];
+   x.games=Array.isArray(x.games)?x.games:[];
+   x.officialGames=Array.isArray(x.officialGames)?x.officialGames:[];
+   return x;
+ }
+ function toast22(msg){try{if(typeof toast==='function')toast(msg);else alert(msg)}catch(e){alert(msg)}}
+ window.shExportBackupV22=function(){
+   const d=normalizeDB(getDB());
+   if(!d)return toast22('No se encontró la base local de STATS HUB CHILE.');
+   const payload={app:'STATS HUB CHILE',version:'V22 PRO',createdAt:new Date().toISOString(),data:JSON.parse(JSON.stringify(d))};
+   localStorage.setItem(V22_BACKUP_KEY,JSON.stringify(payload));
+   const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+   const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='STATS_HUB_CHILE_RESPALDO_V22_'+new Date().toISOString().slice(0,10)+'.json';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+   toast22('💾 Respaldo creado. Tus estadísticas quedan guardadas en un archivo JSON.');
+ };
+ window.shImportBackupV22=function(){
+   let input=document.getElementById('v22BackupInput');
+   if(!input){input=document.createElement('input');input.type='file';input.accept='.json,application/json';input.id='v22BackupInput';input.style.display='none';document.body.appendChild(input);input.onchange=()=>{const f=input.files?.[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{
+      const payload=JSON.parse(r.result);const incoming=normalizeDB(payload.data||payload);
+      if(!Array.isArray(incoming.games)||!Array.isArray(incoming.players))throw new Error('El archivo no parece ser un respaldo válido de STATS HUB CHILE.');
+      const current=normalizeDB(getDB());localStorage.setItem(V22_BACKUP_KEY,JSON.stringify({app:'STATS HUB CHILE',version:'V22 PRE-IMPORT',createdAt:new Date().toISOString(),data:JSON.parse(JSON.stringify(current))}));
+      db=incoming;localStorage.setItem(typeof KEY!=='undefined'?KEY:'statshub_chile_v11',JSON.stringify(db));
+      if(typeof render==='function')render();
+      toast22('♻️ Respaldo restaurado correctamente.');
+    }catch(e){alert('No se pudo restaurar el respaldo: '+(e.message||e));} finally{input.value='';}};r.readAsText(f)};};
+   input.click();
+ };
+ window.shLocalSnapshotV22=function(){
+   const d=normalizeDB(getDB());if(!d)return;
+   localStorage.setItem(V22_BACKUP_KEY,JSON.stringify({app:'STATS HUB CHILE',version:'V22 AUTO',createdAt:new Date().toISOString(),data:JSON.parse(JSON.stringify(d))}));
+   toast22('🛡️ Copia de seguridad local actualizada.');
+ };
+ function inject(){
+   const candidates=[...document.querySelectorAll('.screen')];
+   const games=candidates.find(x=>x.id==='games');
+   if(!games||document.getElementById('v22Tools'))return;
+   const box=document.createElement('div');box.id='v22Tools';box.className='box';
+   box.innerHTML='<div class="head"><div><h2>🛡️ Seguridad de datos</h2><p class="muted">Protege tus jugadores, equipos, partidos y estadísticas antes de cambiar de versión.</p></div><span class="v22Badge">V22 PRO</span></div><div class="v22Tools"><button onclick="shExportBackupV22()">💾 Descargar respaldo</button><button onclick="shImportBackupV22()">♻️ Restaurar respaldo</button><button onclick="shLocalSnapshotV22()">🛡️ Guardar copia local</button></div><div class="v22Backup open"><b>🔐 Recomendación</b><small>Descarga un respaldo antes de actualizar la aplicación. El respaldo incluye jugadores, equipos, torneos, partidos y estadísticas locales.</small></div>';
+   const first=games.firstElementChild; if(first)games.insertBefore(box,first); else games.appendChild(box);
+ }
+ setTimeout(inject,500);setTimeout(inject,1800);
+ const oldSave=window.saveGame;if(typeof oldSave==='function'){window.saveGame=function(){const r=oldSave.apply(this,arguments);try{shLocalSnapshotV22()}catch(e){}return r}}
+})();
+</script>
+
+
+<script id="v22-cloud-player-profile-final-fix">
+(function(){
+  function E(v){return typeof window.esc==='function'?window.esc(String(v??'')):String(v??'').replace(/[&<>\"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[m]));}
+  function openP(body){
+    if(typeof window.forceModal==='function'){window.forceModal('🏀 Perfil del jugador',body);return;}
+    let m=document.getElementById('shAuthModal');
+    if(!m){m=document.createElement('div');m.id='shAuthModal';m.className='communityModal';document.body.appendChild(m)}
+    m.innerHTML='<div class="sh13ModalCard v19ProModal"><div class="sh13ModalHead"><h2>🏀 PERFIL DEL JUGADOR</h2><button class="sh13Close" onclick="shCloseModal()">✕</button></div>'+body+'</div>';
+    m.classList.add('open');m.style.display='flex';m.style.visibility='visible';m.style.opacity='1';m.style.pointerEvents='auto';m.style.zIndex='99999';
+  }
+  function localPlayers(){try{return Array.isArray(db?.players)?db.players:[]}catch(e){return []}}
+  function localGames(){try{return Array.isArray(db?.games)?db.games:[]}catch(e){return []}}
+  function findLocal(playerId,p){
+    const a=localPlayers(), vals=[playerId,p?.id,p?.profile_id].filter(Boolean).map(String);
+    let i=a.findIndex(x=>[x.cloudPlayerId,x.cloud_id,x.cloudId,x.player_id,x.playerId,x.id,x.profile_id,x.user_id].filter(Boolean).some(v=>vals.includes(String(v))));
+    if(i>=0)return i;
+    const n=String(p?.name||'').trim().toLowerCase();
+    return n?a.findIndex(x=>String(x.name||'').trim().toLowerCase()===n):-1;
+  }
+  function stats(i){
+    const z={pj:0,pts:0,reb:0,ast:0,stl:0,blk:0,tov:0,pf:0};
+    if(i<0)return z;
+    for(const g of localGames()){
+      if(String(g.status||'').toUpperCase()==='PROGRAMADO')continue;
+      const ids=[...(g.homePlayers||[]),...(g.awayPlayers||[])].map(Number);
+      if(!ids.includes(Number(i)))continue;
+      const s=g.playerStats?.[i]||g.playerStats?.[String(i)]||{}; z.pj++; z.pts+=Number(s.pts||0); z.reb+=Number(s.reb||0); z.ast+=Number(s.ast||0); z.stl+=Number(s.stl||0); z.blk+=Number(s.blk||0); z.tov+=Number(s.tov||0); z.pf+=Number(s.pf??s.fouls??0);
+    } return z;
+  }
+  window.shOpenCloudPlayerProfile=async function(teamId,playerId){
+    const sb=window.shSupabase||window.supabaseClient||window.sb||null;
+    if(!sb?.from){openP('<div class="sh13Empty">⚠️ Supabase todavía no está disponible.</div>');return}
+    openP('<div class="sh13Empty">⏳ Cargando perfil del jugador…</div>');
+    try{
+      let row=null;
+      // Primero usamos la función segura pública para que el perfil no dependa del localStorage.
+      try{
+        const r=await sb.rpc('list_public_team_players_secure',{p_team_id:teamId});
+        if(!r.error) row=(r.data||[]).find(x=>String(x.id||x.player_id)===String(playerId))||null;
+      }catch(e){}
+      // Fallback directo a team_players.
+      if(!row){
+        const r=await sb.from('team_players').select('player_id,jersey_number,active,players(id,name,jersey_number,position,photo_url,profile_id,city,birth_date,height_cm,dominant_hand,notes)').eq('team_id',teamId).eq('player_id',playerId).maybeSingle();
+        if(r.error)throw r.error; row=r.data;
+      }
+      if(!row)throw new Error('No se encontró el jugador en este equipo.');
+      const p=row.players||row;
+      const i=findLocal(playerId,p), a=stats(i);
+      const jersey=row.jersey_number??p.jersey_number??p.num??'—';
+      const photo=p.photo_url?'<img src="'+E(p.photo_url)+'" style="width:100%;height:100%;object-fit:cover" alt="Foto">':'<div style="font-size:42px;font-weight:950">'+E(String(p.name||'J').split(/\s+/).slice(0,2).map(x=>x[0]).join('').toUpperCase())+'</div>';
+      const avg=(v)=>a.pj?(v/a.pj).toFixed(1):'0.0';
+      const body='<div class="v19Profile">'+
+        '<section class="v19Hero" style="grid-template-columns:170px minmax(0,1fr) 150px!important">'+
+          '<div class="v19PhotoBox" style="width:170px!important;height:170px!important;min-width:170px!important;overflow:hidden">'+photo+'<div class="v19Jersey">#'+E(jersey)+'</div></div>'+
+          '<div class="v19HeroInfo"><span class="v19Status"><i></i> Perfil conectado</span><h1>'+E(p.name||'Jugador')+'</h1><div class="v19Meta"><span>🇨🇱 '+E(p.city||'Chile')+'</span><span>🏀 '+E(p.position||'Jugador')+'</span><span>👕 #'+E(jersey)+'</span></div><p class="muted">Ficha obtenida directamente desde la comunidad STATS HUB CHILE.</p></div>'+
+          '<div class="v19Rating"><small>PARTIDOS</small><b>'+a.pj+'</b><span>registrados</span></div>'+
+        '</section>'+
+        '<div class="v19StatGrid"><div><small>PTS</small><b>'+a.pts+'</b><span>'+avg(a.pts)+' PPG</span></div><div><small>REB</small><b>'+a.reb+'</b><span>'+avg(a.reb)+' RPG</span></div><div><small>AST</small><b>'+a.ast+'</b><span>'+avg(a.ast)+' APG</span></div><div><small>ROB</small><b>'+a.stl+'</b><span>'+avg(a.stl)+' SPG</span></div><div><small>TAP</small><b>'+a.blk+'</b><span>'+avg(a.blk)+' BPG</span></div><div><small>PER</small><b>'+a.tov+'</b><span>'+avg(a.tov)+' TOV</span></div><div><small>FAL</small><b>'+a.pf+'</b><span>'+avg(a.pf)+' FPG</span></div></div>'+ 
+        '<div class="v19Columns"><div class="v19Panel"><h2>👤 Ficha deportiva</h2><div class="v19Metric"><b>Número</b><span>#'+E(jersey)+'</span></div><div class="v19Metric"><b>Posición</b><span>'+E(p.position||'No indicada')+'</span></div><div class="v19Metric"><b>Ciudad</b><span>'+E(p.city||'Chile')+'</span></div><div class="v19Metric"><b>Mano dominante</b><span>'+E(p.dominant_hand||'No indicada')+'</span></div></div><div class="v19Panel"><h2>☁️ Comunidad</h2><p class="muted">Este perfil pertenece a la plantilla del equipo y se consulta desde Supabase. El número de camiseta mostrado corresponde al registro del equipo.</p></div></div>'+ 
+        (i<0?'<div class="v21CloudNote">☁️ Este jugador está conectado a la comunidad, pero todavía no tiene estadísticas de partidos guardadas en este navegador. Sus datos de perfil y número sí están disponibles.</div>':'')+
+        '</div>';
+      openP(body);
+    }catch(e){openP('<div class="sh13Empty">❌ No se pudo cargar el perfil.<br><br>'+E(e?.message||e)+'</div>')}
+  };
+})();
+</script>
 </body>
 <style id="v174-player-panel-css">
 .v174PlayersPanel{margin-top:14px}.v174PlayerGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.v174PlayerCard{display:grid;grid-template-columns:48px 1fr auto;gap:10px;align-items:center;padding:11px;border:1px solid rgba(92,148,190,.18);border-radius:15px;background:linear-gradient(145deg,#10263d,#091725);cursor:pointer}.v174PlayerCard:hover{border-color:rgba(54,220,255,.45);transform:translateY(-1px)}.v174Photo{width:48px;height:48px;border-radius:14px;overflow:hidden;display:grid;place-items:center;background:rgba(54,220,255,.09);font-weight:900;color:#9eefff}.v174Photo img{width:100%;height:100%;object-fit:cover}.v174PlayerCard b{font-size:11px}.v174PlayerCard small{display:block;color:#8fa8bb;font-size:8px;margin-top:3px}.v174Pts{text-align:right}.v174Pts b{font-size:18px;color:#fff}.v174Pts small{margin-top:0}.v174Hint{font-size:9px;color:#8fa8bb;margin-top:6px}@media(max-width:650px){.v174PlayerGrid{grid-template-columns:1fr}.v174PlayerCard{grid-template-columns:44px 1fr auto}}
@@ -3905,6 +4052,8 @@ window.addEventListener('load',()=>setTimeout(shInit,50));
     if(!window.shAuthUser||!window.shSupabase)return;
     try{
       const {data:p,error}=await shSupabase.from('profiles').select('*').eq('id',shAuthUser.id).maybeSingle(); if(error)throw error;
+      const {data:myPlayer,error:myPlayerError}=await shSupabase.from('players').select('id,jersey_number').eq('profile_id',shAuthUser.id).limit(1).maybeSingle();
+      if(myPlayerError)console.warn('player profile lookup',myPlayerError);
       const photo=p?.photo_url||'';
       modal('👤 Mi perfil deportivo',`<div class="sh13Notice"><b>Tu identidad deportiva.</b><br>La foto, datos y ficha de jugador se sincronizan con tus equipos.</div>
       <div class="v19PhotoPicker" style="margin:14px 0"><div id="v19PhotoPreview" class="v19Preview">${photo?`<img src="${esc(photo)}">`:initials(p?.full_name||shAuthUser.email)}</div><div><label style="font-size:9px;color:#8faabd">FOTO DE PERFIL / FOTO DEPORTIVA</label><input id="v19PhotoFile" class="v19File" type="file" accept="image/*" onchange="shV19PreviewPhoto(this)"><div class="v19Help">Puedes elegir una foto desde tu computador o celular. También puedes usar una URL.</div></div></div>
@@ -3912,7 +4061,7 @@ window.addEventListener('load',()=>setTimeout(shInit,50));
         <div><label style="font-size:9px;color:#8faabd">NOMBRE COMPLETO</label><input id="shPName" maxlength="100" value="${esc(p?.full_name||'')}" placeholder="Nombre completo"></div>
         <div><label style="font-size:9px;color:#8faabd">CIUDAD</label><input id="shPCity" maxlength="80" value="${esc(p?.city||'')}" placeholder="Curicó"></div>
         <div><label style="font-size:9px;color:#8faabd">POSICIÓN</label><select id="shPPos"><option value="">Seleccionar</option><option ${p?.position==='Base'?'selected':''}>Base</option><option ${p?.position==='Escolta'?'selected':''}>Escolta</option><option ${p?.position==='Alero'?'selected':''}>Alero</option><option ${p?.position==='Ala-pívot'?'selected':''}>Ala-pívot</option><option ${p?.position==='Pívot'?'selected':''}>Pívot</option></select></div>
-        <div><label style="font-size:9px;color:#8faabd">CAMISETA</label><input id="v19ProfileNum" type="number" min="0" max="99" placeholder="Se define por equipo"></div>
+        <div><label style="font-size:9px;color:#8faabd">NÚMERO DE CAMISETA</label><input id="v19ProfileNum" type="number" min="0" max="99" step="1" value="${esc(myPlayer?.jersey_number??'')}" placeholder="10"><small style="display:block;margin-top:5px;color:#718b9e;font-size:8px">Número de tu ficha de jugador. También puedes definir uno distinto por equipo.</small></div>
         <div class="full"><label style="font-size:9px;color:#8faabd">URL DE FOTO (OPCIONAL)</label><input id="shPPhoto" value="${esc(photo)}" placeholder="https://..."></div>
         <div><label style="font-size:9px;color:#8faabd">ESTATURA (CM)</label><input id="shPHeight" type="number" min="0" step="1" value="${esc(p?.height_cm||'')}" placeholder="180"></div>
         <div><label style="font-size:9px;color:#8faabd">MANO DOMINANTE</label><select id="shPHand"><option value="">Seleccionar</option><option ${p?.dominant_hand==='Derecha'?'selected':''}>Derecha</option><option ${p?.dominant_hand==='Izquierda'?'selected':''}>Izquierda</option></select></div>
@@ -3932,10 +4081,12 @@ window.addEventListener('load',()=>setTimeout(shInit,50));
     const btn=document.getElementById('shProfileBtn'); if(btn)btn.disabled=true;
     try{
       let photo=document.getElementById('shPPhoto')?.value.trim()||null; const f=document.getElementById('v19PhotoFile')?.files?.[0]; if(f)photo=await imageToDataURL(f);
+      const rawNum=document.getElementById('v19ProfileNum')?.value??''; const jerseyNum=rawNum===''?null:Number(rawNum); if(jerseyNum!==null&&(!Number.isInteger(jerseyNum)||jerseyNum<0||jerseyNum>99))throw new Error('El número de camiseta debe ser un entero entre 0 y 99.');
       const patch={full_name:document.getElementById('shPName')?.value.trim()||'',city:document.getElementById('shPCity')?.value.trim()||'Chile',position:document.getElementById('shPPos')?.value||'',photo_url:photo,birth_date:null,height_cm:Number(document.getElementById('shPHeight')?.value)||null,dominant_hand:document.getElementById('shPHand')?.value||null,notes:document.getElementById('shPNotes')?.value.trim()||null};
       const {error}=await shSupabase.from('profiles').update(patch).eq('id',shAuthUser.id);if(error)throw error;
       // Actualiza todas las fichas del usuario, si ya existe como jugador.
-      const {error:pe}=await shSupabase.from('players').update({name:patch.full_name,city:patch.city,position:patch.position,photo_url:patch.photo_url,height_cm:patch.height_cm,dominant_hand:patch.dominant_hand,notes:patch.notes}).eq('profile_id',shAuthUser.id);if(pe)console.warn('players profile sync',pe);
+      const {error:pe}=await shSupabase.from('players').update({name:patch.full_name,jersey_number:jerseyNum,city:patch.city,position:patch.position,photo_url:patch.photo_url,height_cm:patch.height_cm,dominant_hand:patch.dominant_hand,notes:patch.notes}).eq('profile_id',shAuthUser.id);if(pe)console.warn('players profile sync',pe);
+      if(!pe){const {data:tp}=await shSupabase.from('team_players').select('team_id,player_id').eq('player_id',myPlayer?.id||'00000000-0000-0000-0000-000000000000'); for(const r of (tp||[])){const {error:te}=await shSupabase.from('team_players').update({jersey_number:jerseyNum}).eq('team_id',r.team_id).eq('player_id',r.player_id);if(te)console.warn('team jersey sync',te)}}
       document.getElementById('shProfileMsg').innerHTML='✅ Perfil actualizado. Foto y datos sincronizados.';
       setTimeout(()=>{if(typeof window.shCloseModal==='function')shCloseModal(); if(typeof window.shRenderLoggedAccount==='function')shRenderLoggedAccount(); if(typeof window.shSyncTopUser==='function')shSyncTopUser()},550);
     }catch(e){const m=document.getElementById('shProfileMsg');if(m)m.innerHTML='❌ '+esc(e?.message||e)}finally{if(btn)btn.disabled=false;}
@@ -4401,6 +4552,277 @@ window.shOpenCloudPlayerProfile=async function(teamId,playerId){
  #shAuthModal .v19Stat b{font-size:23px!important}
 }
 </style>
+
+<script id="v20-6-community-access-fix">
+(function(){
+  // V20.6 — Comunidad: creación de equipos con fallback y explorador público de equipos/plantillas.
+  const S=()=>window.shSupabase, U=()=>window.shAuthUser;
+  const escx=v=>typeof window.esc==='function'?window.esc(v??''):String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  const notify=m=>{try{typeof window.toast==='function'?window.toast(m):alert(m)}catch(e){alert(m)}};
+  function modalX(title,body){
+    if(typeof window.forceModal==='function')return window.forceModal(title,body);
+    if(typeof window.modal13==='function')return window.modal13(title,body);
+    if(typeof window.shModal==='function')return window.shModal(title,body);
+    let m=document.getElementById('shAuthModal');
+    if(!m){m=document.createElement('div');m.id='shAuthModal';m.className='communityModal';document.body.appendChild(m)}
+    m.innerHTML='<div class="sh13ModalCard"><div class="sh13ModalHead"><h2>'+title+'</h2><button class="sh13Close" onclick="shCloseModal()">✕</button></div>'+body+'</div>';m.classList.add('open');
+  }
+  function code(){return 'SH-'+Math.random().toString(36).slice(2,6).toUpperCase()+'-'+Math.random().toString(36).slice(2,6).toUpperCase()}
+
+  window.shCreateTeam=function(){
+    modalX('🏀 Crear equipo','<div class="sh13Form" style="margin-top:14px"><div class="sh13Notice">Crea tu equipo y quedarás automáticamente como <b>Administrador</b>.</div><input id="shTeamName" maxlength="100" placeholder="Nombre del equipo"><input id="shTeamCategory" maxlength="50" placeholder="Categoría · U15, U18, Adultos, +40"><input id="shTeamCity" maxlength="80" placeholder="Ciudad"><textarea id="shTeamDesc" maxlength="300" placeholder="Descripción breve (opcional)"></textarea><button id="shTeamBtn" class="sh13Btn primary" onclick="shSaveTeam()">🚀 Crear equipo</button><div id="shTeamMsg" class="authMsg"></div></div>');
+  };
+
+  window.shSaveTeam=async function(){
+    const sb=S(),u=U(); const name=document.getElementById('shTeamName')?.value.trim();
+    if(!sb||!u){notify('🔐 Debes iniciar sesión para crear un equipo.');return}
+    if(!name){if(typeof shSetMsg==='function')shSetMsg('shTeamMsg','⚠️ Escribe el nombre del equipo.');return}
+    if(typeof shLoading==='function')shLoading('shTeamBtn','Creando…');
+    const category=document.getElementById('shTeamCategory')?.value.trim()||'Adultos';
+    const city=document.getElementById('shTeamCity')?.value.trim()||'Chile';
+    const desc=document.getElementById('shTeamDesc')?.value.trim()||null;
+    try{
+      // 1) Ruta segura recomendada.
+      let team=null, rpcErr=null;
+      try{
+        const r=await sb.rpc('create_team_secure',{p_name:name,p_category:category,p_city:city});
+        rpcErr=r.error; team=Array.isArray(r.data)?r.data[0]:r.data;
+      }catch(e){rpcErr=e}
+      // 2) Compatibilidad: si la función RPC no existe/no está ejecutable, intenta crear por RLS.
+      if(!team){
+        const invite=code();
+        const ins=await sb.from('teams').insert({owner_id:u.id,name,category,city,description:desc,invite_code:invite}).select('id,name,category,city,invite_code').single();
+        if(ins.error) throw new Error('No se pudo crear el equipo. Supabase respondió: '+(ins.error.message||ins.error.code||'error desconocido')+' | Ejecuta el SQL de configuración de Comunidad para habilitar creación y acceso.');
+        team=ins.data;
+        const mem=await sb.from('team_members').insert({team_id:team.id,user_id:u.id,role:'admin',status:'active'});
+        if(mem.error){await sb.from('teams').delete().eq('id',team.id);throw new Error('El equipo se creó pero no se pudo asignar el administrador: '+mem.error.message)}
+      } else if(desc){
+        const up=await sb.from('teams').update({description:desc}).eq('id',team.id);
+        if(up.error)console.warn('Descripción no actualizada:',up.error);
+      }
+      if(typeof shDone==='function')shDone('shTeamBtn');
+      if(typeof shCloseModal==='function')shCloseModal();
+      notify('🏀 Equipo creado: '+(team.invite_code||'código disponible en el equipo'));
+      if(typeof window.shRenderLoggedAccount==='function')await window.shRenderLoggedAccount();
+    }catch(e){
+      if(typeof shSetMsg==='function')shSetMsg('shTeamMsg','❌ '+escx(e?.message||e));
+      else notify('❌ '+(e?.message||e));
+      if(typeof shDone==='function')shDone('shTeamBtn');
+    }
+  };
+
+  async function publicTeamRoster(team){
+    const sb=S();
+    const {data:links,error}=await sb.from('team_players').select('player_id,jersey_number,active').eq('team_id',team.id).eq('active',true);
+    if(error)throw new Error('No se puede leer la nómina del equipo: '+(error.message||error.code||'RLS/grants'));
+    const ids=(links||[]).map(x=>x.player_id).filter(Boolean);
+    if(!ids.length)return [];
+    const {data:players,error:pe}=await sb.from('players').select('id,name,jersey_number,position,photo_url,city,profile_id').in('id',ids);
+    if(pe)throw new Error('No se pueden leer los jugadores: '+(pe.message||pe.code||'RLS/grants'));
+    const byId=new Map((players||[]).map(x=>[String(x.id),x]));
+    return (links||[]).map(x=>({...x,players:byId.get(String(x.player_id))||null}));
+  }
+
+  window.shExploreTeams=async function(){
+    const sb=S(); if(!sb){notify('Supabase no está disponible.');return}
+    modalX('🌎 Equipos de STATS HUB CHILE','<div id="shExploreTeamsBox" class="sh13Empty">⏳ Cargando equipos y plantillas…</div>');
+    try{
+      const {data:teams,error}=await sb.from('teams').select('id,name,category,city,invite_code,logo_url,description').order('name',{ascending:true});
+      if(error)throw new Error('No se pueden leer los equipos desde Supabase: '+(error.message||error.code||'RLS/grants').toString());
+      const all=teams||[]; let html='<div class="v206ExploreIntro"><b>🌎 Comunidad deportiva</b><span>Consulta equipos y participantes. Los datos personales sensibles no se muestran.</span></div><div class="v206TeamGrid">';
+      for(const t of all){
+        let players=[]; let pe=null;
+        try{players=await publicTeamRoster(t)}catch(e){pe=e}
+        html+='<article class="v206TeamCard"><div class="v206TeamTop"><div class="v206TeamLogo">🏀</div><div><b>'+escx(t.name)+'</b><small>'+escx(t.category||'Adultos')+' · '+escx(t.city||'Chile')+'</small></div></div><div class="v206TeamMeta"><span>👥 '+players.length+' jugadores</span><span>🏀 Equipo registrado</span></div>';
+        if(pe){html+='<div class="v206Private">🔒 Plantilla no disponible para este usuario</div>'}
+        else if(players.length){html+='<div class="v206Roster">'+players.map(r=>{const q=r.players||{};const ph=q.photo_url?'<img src="'+escx(q.photo_url)+'">':'<span>'+escx((q.name||'J').split(/\s+/).slice(0,2).map(x=>x[0]).join('').toUpperCase())+'</span>';return '<button class="v206Player" type="button" onclick="shOpenCloudPlayerProfile(\''+escx(t.id)+'\',\''+escx(r.player_id)+'\')"><div class="v206PlayerPhoto">'+ph+'</div><div><b>'+escx(q.name||'Jugador')+'</b><small>#'+escx(r.jersey_number??q.jersey_number??'—')+' · '+escx(q.position||'Jugador')+'</small></div></button>'}).join('')+'</div>'}
+        else html+='<div class="v206Private">Todavía no hay jugadores activos.</div>';
+        html+='<button class="sh13Btn" style="width:100%;margin-top:9px" onclick="shOpenPublicTeam(\''+escx(t.id)+'\')">👥 Ver plantilla completa</button></article>';
+      }
+      html+='</div>';
+      const box=document.getElementById('shExploreTeamsBox');if(box)box.outerHTML=html;
+    }catch(e){const box=document.getElementById('shExploreTeamsBox');if(box)box.innerHTML='<div class="sh13Empty">❌ '+escx(e?.message||e)+'</div>'}
+  };
+
+  window.shOpenPublicTeam=async function(teamId){
+    const sb=S(); if(!sb)return;
+    try{
+      const {data:t,error:te}=await sb.from('teams').select('*').eq('id',teamId).single(); if(te)throw te;
+      const rows=await publicTeamRoster(t);
+      const cards=rows.map(r=>{const p=r.players||{};const ph=p.photo_url?'<img src="'+escx(p.photo_url)+'">':'<span>'+escx((p.name||'J').split(/\s+/).slice(0,2).map(x=>x[0]).join('').toUpperCase())+'</span>';return '<button class="v206Player" type="button" onclick="shOpenCloudPlayerProfile(\''+escx(t.id)+'\',\''+escx(r.player_id)+'\')"><div class="v206PlayerPhoto">'+ph+'</div><div><b>'+escx(p.name||'Jugador')+'</b><small>#'+escx(r.jersey_number??p.jersey_number??'—')+' · '+escx(p.position||'Jugador')+'</small></div></button>'}).join('');
+      modalX('👥 '+escx(t.name),'<div class="v206ExploreIntro"><b>'+escx(t.category||'Adultos')+' · '+escx(t.city||'Chile')+'</b><span>'+rows.length+' jugadores activos</span></div><div class="v206Roster v206RosterFull">'+(cards||'<div class="sh13Empty">No hay jugadores activos.</div>')+'</div>');
+    }catch(e){modalX('👥 Equipo','<div class="sh13Empty">❌ '+escx(e?.message||e)+'</div>')}
+  };
+
+  // Agrega acceso visible al explorador en el centro de cuenta, sin eliminar las funciones existentes.
+  const oldRender=window.shRenderLoggedAccount;
+  if(oldRender){window.shRenderLoggedAccount=async function(){const r=await oldRender();try{const page=document.getElementById('accountCommunityPage');if(page&&!page.querySelector('#v206ExploreBtn')){const panel=document.createElement('div');panel.className='sh13Panel v206ExplorePanel';panel.innerHTML='<div class="v206ExploreHead"><div><h2>🌎 Comunidad STATS HUB CHILE</h2><p>Busca equipos registrados y revisa sus jugadores activos.</p></div><button id="v206ExploreBtn" class="sh13Btn primary" onclick="shExploreTeams()">🌎 Explorar equipos</button></div>';panel.insertAdjacentHTML('beforeend','<div class="v207CloudNote">☁️ Comunidad conectada a Supabase · Equipos y plantillas se comparten entre cuentas.</div>');const layout=page.querySelector('.sh13Layout');if(layout)layout.insertAdjacentElement('afterend',panel);else page.appendChild(panel)}}catch(e){}return r}}
+})();
+</script>
+<style id="v20-6-community-access-css">
+.v206ExplorePanel{margin-top:14px}.v206ExploreHead{display:flex;align-items:center;justify-content:space-between;gap:14px}.v206ExploreHead h2{margin:0;font-size:14px}.v206ExploreHead p{margin:5px 0 0;color:#8da4b7;font-size:10px}.v206ExploreIntro{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:12px;border:1px solid rgba(75,190,230,.18);border-radius:14px;background:rgba(20,50,72,.45);margin-bottom:10px}.v206ExploreIntro b{display:block;font-size:11px}.v206ExploreIntro span{font-size:9px;color:#91a9ba}.v206TeamGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;max-height:58vh;overflow:auto;padding-right:2px}.v206TeamCard{border:1px solid rgba(80,170,215,.18);border-radius:16px;padding:12px;background:linear-gradient(145deg,#10273b,#081521)}.v206TeamTop{display:flex;gap:10px;align-items:center}.v206TeamLogo{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;background:rgba(54,220,255,.1);font-size:20px}.v206TeamTop b{font-size:12px}.v206TeamTop small{display:block;color:#8da4b7;font-size:9px;margin-top:3px}.v206TeamMeta{display:flex;justify-content:space-between;gap:8px;margin:10px 0;color:#91a9ba;font-size:8px}.v206Roster{display:grid;gap:6px;max-height:220px;overflow:auto}.v206Player{display:grid;grid-template-columns:38px 1fr;gap:8px;align-items:center;text-align:left;width:100%;border:1px solid rgba(100,160,190,.12);border-radius:11px;background:rgba(255,255,255,.025);padding:7px;color:#fff;cursor:pointer}.v206Player:hover{border-color:rgba(54,220,255,.38);transform:translateY(-1px)}.v206PlayerPhoto{width:38px;height:38px;border-radius:11px;overflow:hidden;display:grid;place-items:center;background:rgba(54,220,255,.08);font-weight:900;color:#9eefff}.v206PlayerPhoto img{width:100%;height:100%;object-fit:cover}.v206Player b{font-size:9px}.v206Player small{display:block;color:#8da4b7;font-size:8px;margin-top:2px}.v206Private{font-size:9px;color:#91a9ba;padding:10px;border:1px dashed rgba(130,160,180,.18);border-radius:10px}.v206RosterFull{max-height:55vh}.v206RosterFull .v206Player{grid-template-columns:48px 1fr;padding:9px}.v206RosterFull .v206PlayerPhoto{width:48px;height:48px}.v206TeamGrid::-webkit-scrollbar,.v206Roster::-webkit-scrollbar{width:5px}.v206TeamGrid::-webkit-scrollbar-thumb,.v206Roster::-webkit-scrollbar-thumb{background:rgba(130,190,220,.25);border-radius:10px}@media(max-width:650px){.v206ExploreHead{align-items:stretch;flex-direction:column}.v206ExploreHead .sh13Btn{width:100%}.v206TeamGrid{grid-template-columns:1fr}.v206ExploreIntro{align-items:flex-start;flex-direction:column}}
+</style>
+
+<script id="v21-2-player-profile-number-fix">
+(function(){
+  'use strict';
+  const escX=v=>typeof window.esc==='function'?window.esc(String(v??'')):String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  const getSB=()=>window.shSupabase||((typeof shSupabase!=='undefined')?shSupabase:null);
+  const getU=()=>window.shAuthUser||((typeof shAuthUser!=='undefined')?shAuthUser:null);
+  const initialsX=n=>(String(n||'Jugador').trim().split(/\s+/).slice(0,2).map(x=>x[0]).join('').toUpperCase()||'J');
+
+  window.shProfile=async function(){
+    const sb=getSB(),u=getU();
+    if(!sb||!u){alert('Debes iniciar sesión para editar tu perfil.');return;}
+    try{
+      const [{data:p,error:pe},{data:pls,error:ple}]=await Promise.all([
+        sb.from('profiles').select('*').eq('id',u.id).maybeSingle(),
+        sb.from('players').select('id,name,profile_id,jersey_number,position,photo_url,city,height_cm,dominant_hand,notes').eq('profile_id',u.id).limit(1)
+      ]);
+      if(pe)throw pe;if(ple)throw ple;
+      const player=pls?.[0]||null;
+      let jersey=player?.jersey_number??null;
+      try{
+        if(player?.id){
+          const {data:trs}=await sb.from('team_players').select('jersey_number,team_id').eq('player_id',player.id).eq('active',true).limit(1);
+          if(trs?.[0]?.jersey_number!=null)jersey=trs[0].jersey_number;
+        }
+      }catch(e){console.warn('No se pudo leer número de equipo',e)}
+      const photo=p?.photo_url||player?.photo_url||'';
+      const initials=initialsX(p?.full_name||player?.name||u.email);
+      const modal=document.getElementById('shAuthModal')||(()=>{const x=document.createElement('div');x.id='shAuthModal';x.className='communityModal';document.body.appendChild(x);return x;})();
+      modal.innerHTML=`<div class="sh13ModalCard v19FinalProfileModal">
+        <div class="sh13ModalHead"><h2>👤 Mi perfil deportivo</h2><button class="sh13Close" type="button" onclick="shCloseModal()">✕</button></div>
+        <div class="sh13Notice"><b>Tu identidad en STATS HUB CHILE</b><br>Si tienes ficha de jugador, aquí puedes modificarla y definir tu número de camiseta.</div>
+        <div class="v19FinalPhoto"><div id="v19PhotoPreview" class="v19Preview">${photo?`<img src="${escX(photo)}" alt="Foto">`:escX(initials)}</div><div><b>📸 FOTO DE PERFIL</b><small>Elige una imagen desde tu computador o celular.</small><input id="v19PhotoFile" type="file" accept="image/*" onchange="shV19PreviewPhoto(this)"><input id="shPPhoto" value="${escX(photo)}" placeholder="URL de foto (opcional)"></div></div>
+        <div class="v19FormGrid">
+          <div><label>NOMBRE COMPLETO</label><input id="shPName" maxlength="100" value="${escX(p?.full_name||player?.name||'')}" placeholder="Nombre completo"></div>
+          <div><label>CIUDAD</label><input id="shPCity" maxlength="80" value="${escX(p?.city||player?.city||'')}" placeholder="Ciudad"></div>
+          <div><label>POSICIÓN</label><select id="shPPos"><option value="">Seleccionar</option><option ${((p?.position||player?.position)==='Base')?'selected':''}>Base</option><option ${((p?.position||player?.position)==='Escolta')?'selected':''}>Escolta</option><option ${((p?.position||player?.position)==='Alero')?'selected':''}>Alero</option><option ${((p?.position||player?.position)==='Ala-pívot')?'selected':''}>Ala-pívot</option><option ${((p?.position||player?.position)==='Pívot')?'selected':''}>Pívot</option></select></div>
+          <div><label>👕 NÚMERO DE CAMISETA</label><input id="v19ProfileNum" type="number" min="0" max="99" step="1" value="${jersey==null?'':escX(jersey)}" placeholder="Ej: 7, 10, 23"><small style="display:block;margin-top:5px;color:#8faabd">Número entre 0 y 99. Se sincroniza con tus equipos.</small></div>
+          <div><label>ESTATURA (CM)</label><input id="shPHeight" type="number" min="0" step="1" value="${escX(p?.height_cm||player?.height_cm||'')}" placeholder="180"></div>
+          <div><label>MANO DOMINANTE</label><select id="shPHand"><option value="">Seleccionar</option><option ${((p?.dominant_hand||player?.dominant_hand)==='Derecha')?'selected':''}>Derecha</option><option ${((p?.dominant_hand||player?.dominant_hand)==='Izquierda')?'selected':''}>Izquierda</option></select></div>
+          <div class="full"><label>BIO / NOTAS</label><textarea id="shPNotes" maxlength="500" placeholder="Información deportiva">${escX(p?.notes||player?.notes||'')}</textarea></div>
+        </div>
+        <div class="v19AdminPlayerBox"><b>🏀 FICHA DE JUGADOR</b><small>${player?'Puedes modificar tu ficha y tu número de camiseta.':'Todavía no tienes ficha de jugador; al guardar se creará automáticamente.'}</small></div>
+        <button id="shProfileBtn" class="sh13Btn primary" type="button" style="width:100%;margin-top:12px" onclick="shSaveProfile()">💾 GUARDAR PERFIL Y NÚMERO</button><div id="shProfileMsg" class="authMsg"></div>
+      </div>`;
+      modal.classList.add('open');modal.style.display='flex';modal.style.visibility='visible';modal.style.opacity='1';modal.style.pointerEvents='auto';modal.style.zIndex='99999';
+    }catch(e){console.error(e);alert('No se pudo cargar el perfil: '+(e?.message||e));}
+  };
+
+  window.shSaveProfile=async function(){
+    const sb=getSB(),u=getU(),btn=document.getElementById('shProfileBtn'),out=document.getElementById('shProfileMsg');
+    if(btn)btn.disabled=true;
+    try{
+      if(!sb||!u)throw new Error('Debes iniciar sesión.');
+      const raw=String(document.getElementById('v19ProfileNum')?.value??'').trim();
+      const jersey=raw===''?null:Number(raw);
+      if(jersey!==null&&(!Number.isInteger(jersey)||jersey<0||jersey>99))throw new Error('El número de camiseta debe ser un entero entre 0 y 99.');
+      const name=document.getElementById('shPName')?.value.trim()||'Jugador';
+      const city=document.getElementById('shPCity')?.value.trim()||'Chile';
+      const position=document.getElementById('shPPos')?.value||null;
+      const height=Number(document.getElementById('shPHeight')?.value)||null;
+      const hand=document.getElementById('shPHand')?.value||null;
+      const notes=document.getElementById('shPNotes')?.value.trim()||null;
+      let photo=document.getElementById('shPPhoto')?.value.trim()||null;
+      const f=document.getElementById('v19PhotoFile')?.files?.[0];
+      if(f){photo=await new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(r.result);r.onerror=reject;r.readAsDataURL(f)})}
+
+      const {error:profErr}=await sb.from('profiles').update({full_name:name,city,position,photo_url:photo,height_cm:height,dominant_hand:hand,notes}).eq('id',u.id);
+      if(profErr)throw profErr;
+
+      const {data:rows,error:readErr}=await sb.from('players').select('id,name,profile_id,jersey_number').eq('profile_id',u.id).limit(1);
+      if(readErr)throw readErr;
+      let player=rows?.[0]||null;
+      if(player){
+        const {error:e}=await sb.from('players').update({name,jersey_number:jersey,city,position,photo_url:photo,height_cm:height,dominant_hand:hand,notes}).eq('id',player.id);
+        if(e)throw e;
+      }else{
+        const {data:c,error:e}=await sb.from('players').insert({name,jersey_number:jersey,city,position,photo_url:photo,height_cm:height,dominant_hand:hand,notes,profile_id:u.id}).select('id,name,profile_id,jersey_number').single();
+        if(e)throw e;player=c;
+      }
+
+      const {data:trs,error:trErr}=await sb.from('team_players').select('team_id,player_id').eq('player_id',player.id);
+      if(trErr)throw trErr;
+      for(const r of trs||[]){
+        const {error:e}=await sb.from('team_players').update({jersey_number:jersey}).eq('team_id',r.team_id).eq('player_id',r.player_id);
+        if(e)throw e;
+      }
+      if(out)out.innerHTML='✅ Perfil guardado. Número de camiseta: <b>#'+escX(jersey??'—')+'</b>';
+      setTimeout(()=>{try{window.shCloseModal&&window.shCloseModal()}catch(e){};try{window.shRenderLoggedAccount&&window.shRenderLoggedAccount()}catch(e){}},700);
+    }catch(e){console.error('Guardar perfil jugador',e);if(out)out.innerHTML='❌ '+escX(e?.message||e);}
+    finally{if(btn)btn.disabled=false;}
+  };
+})();
+</script>
+
+<script id="v22-cloud-player-profile-final-fix">
+(function(){
+  function E(v){return typeof window.esc==='function'?window.esc(String(v??'')):String(v??'').replace(/[&<>\"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[m]));}
+  function openP(body){
+    if(typeof window.forceModal==='function'){window.forceModal('🏀 Perfil del jugador',body);return;}
+    let m=document.getElementById('shAuthModal');
+    if(!m){m=document.createElement('div');m.id='shAuthModal';m.className='communityModal';document.body.appendChild(m)}
+    m.innerHTML='<div class="sh13ModalCard v19ProModal"><div class="sh13ModalHead"><h2>🏀 PERFIL DEL JUGADOR</h2><button class="sh13Close" onclick="shCloseModal()">✕</button></div>'+body+'</div>';
+    m.classList.add('open');m.style.display='flex';m.style.visibility='visible';m.style.opacity='1';m.style.pointerEvents='auto';m.style.zIndex='99999';
+  }
+  function localPlayers(){try{return Array.isArray(db?.players)?db.players:[]}catch(e){return []}}
+  function localGames(){try{return Array.isArray(db?.games)?db.games:[]}catch(e){return []}}
+  function findLocal(playerId,p){
+    const a=localPlayers(), vals=[playerId,p?.id,p?.profile_id].filter(Boolean).map(String);
+    let i=a.findIndex(x=>[x.cloudPlayerId,x.cloud_id,x.cloudId,x.player_id,x.playerId,x.id,x.profile_id,x.user_id].filter(Boolean).some(v=>vals.includes(String(v))));
+    if(i>=0)return i;
+    const n=String(p?.name||'').trim().toLowerCase();
+    return n?a.findIndex(x=>String(x.name||'').trim().toLowerCase()===n):-1;
+  }
+  function stats(i){
+    const z={pj:0,pts:0,reb:0,ast:0,stl:0,blk:0,tov:0,pf:0};
+    if(i<0)return z;
+    for(const g of localGames()){
+      if(String(g.status||'').toUpperCase()==='PROGRAMADO')continue;
+      const ids=[...(g.homePlayers||[]),...(g.awayPlayers||[])].map(Number);
+      if(!ids.includes(Number(i)))continue;
+      const s=g.playerStats?.[i]||g.playerStats?.[String(i)]||{}; z.pj++; z.pts+=Number(s.pts||0); z.reb+=Number(s.reb||0); z.ast+=Number(s.ast||0); z.stl+=Number(s.stl||0); z.blk+=Number(s.blk||0); z.tov+=Number(s.tov||0); z.pf+=Number(s.pf??s.fouls??0);
+    } return z;
+  }
+  window.shOpenCloudPlayerProfile=async function(teamId,playerId){
+    const sb=window.shSupabase||window.supabaseClient||window.sb||null;
+    if(!sb?.from){openP('<div class="sh13Empty">⚠️ Supabase todavía no está disponible.</div>');return}
+    openP('<div class="sh13Empty">⏳ Cargando perfil del jugador…</div>');
+    try{
+      let row=null;
+      // Primero usamos la función segura pública para que el perfil no dependa del localStorage.
+      try{
+        const r=await sb.rpc('list_public_team_players_secure',{p_team_id:teamId});
+        if(!r.error) row=(r.data||[]).find(x=>String(x.id||x.player_id)===String(playerId))||null;
+      }catch(e){}
+      // Fallback directo a team_players.
+      if(!row){
+        const r=await sb.from('team_players').select('player_id,jersey_number,active,players(id,name,jersey_number,position,photo_url,profile_id,city,birth_date,height_cm,dominant_hand,notes)').eq('team_id',teamId).eq('player_id',playerId).maybeSingle();
+        if(r.error)throw r.error; row=r.data;
+      }
+      if(!row)throw new Error('No se encontró el jugador en este equipo.');
+      const p=row.players||row;
+      const i=findLocal(playerId,p), a=stats(i);
+      const jersey=row.jersey_number??p.jersey_number??p.num??'—';
+      const photo=p.photo_url?'<img src="'+E(p.photo_url)+'" style="width:100%;height:100%;object-fit:cover" alt="Foto">':'<div style="font-size:42px;font-weight:950">'+E(String(p.name||'J').split(/\s+/).slice(0,2).map(x=>x[0]).join('').toUpperCase())+'</div>';
+      const avg=(v)=>a.pj?(v/a.pj).toFixed(1):'0.0';
+      const body='<div class="v19Profile">'+
+        '<section class="v19Hero" style="grid-template-columns:170px minmax(0,1fr) 150px!important">'+
+          '<div class="v19PhotoBox" style="width:170px!important;height:170px!important;min-width:170px!important;overflow:hidden">'+photo+'<div class="v19Jersey">#'+E(jersey)+'</div></div>'+
+          '<div class="v19HeroInfo"><span class="v19Status"><i></i> Perfil conectado</span><h1>'+E(p.name||'Jugador')+'</h1><div class="v19Meta"><span>🇨🇱 '+E(p.city||'Chile')+'</span><span>🏀 '+E(p.position||'Jugador')+'</span><span>👕 #'+E(jersey)+'</span></div><p class="muted">Ficha obtenida directamente desde la comunidad STATS HUB CHILE.</p></div>'+
+          '<div class="v19Rating"><small>PARTIDOS</small><b>'+a.pj+'</b><span>registrados</span></div>'+
+        '</section>'+
+        '<div class="v19StatGrid"><div><small>PTS</small><b>'+a.pts+'</b><span>'+avg(a.pts)+' PPG</span></div><div><small>REB</small><b>'+a.reb+'</b><span>'+avg(a.reb)+' RPG</span></div><div><small>AST</small><b>'+a.ast+'</b><span>'+avg(a.ast)+' APG</span></div><div><small>ROB</small><b>'+a.stl+'</b><span>'+avg(a.stl)+' SPG</span></div><div><small>TAP</small><b>'+a.blk+'</b><span>'+avg(a.blk)+' BPG</span></div><div><small>PER</small><b>'+a.tov+'</b><span>'+avg(a.tov)+' TOV</span></div><div><small>FAL</small><b>'+a.pf+'</b><span>'+avg(a.pf)+' FPG</span></div></div>'+ 
+        '<div class="v19Columns"><div class="v19Panel"><h2>👤 Ficha deportiva</h2><div class="v19Metric"><b>Número</b><span>#'+E(jersey)+'</span></div><div class="v19Metric"><b>Posición</b><span>'+E(p.position||'No indicada')+'</span></div><div class="v19Metric"><b>Ciudad</b><span>'+E(p.city||'Chile')+'</span></div><div class="v19Metric"><b>Mano dominante</b><span>'+E(p.dominant_hand||'No indicada')+'</span></div></div><div class="v19Panel"><h2>☁️ Comunidad</h2><p class="muted">Este perfil pertenece a la plantilla del equipo y se consulta desde Supabase. El número de camiseta mostrado corresponde al registro del equipo.</p></div></div>'+ 
+        (i<0?'<div class="v21CloudNote">☁️ Este jugador está conectado a la comunidad, pero todavía no tiene estadísticas de partidos guardadas en este navegador. Sus datos de perfil y número sí están disponibles.</div>':'')+
+        '</div>';
+      openP(body);
+    }catch(e){openP('<div class="sh13Empty">❌ No se pudo cargar el perfil.<br><br>'+E(e?.message||e)+'</div>')}
+  };
+})();
+</script>
 </body>
 
 <style id="v19-final-profile-fix-css">
@@ -5686,3 +6108,249 @@ document.addEventListener('click',function(ev){const el=ev.target?.closest?.('[o
 .profileEditActions{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap;margin:12px 0 2px}.profileEditActions .deleteItemBtn{border:1px solid rgba(255,90,110,.28);background:rgba(255,70,90,.08);color:#ff9cab;border-radius:10px;padding:8px 10px;font-weight:900;cursor:pointer}.profileEditActions .deleteItemBtn:hover{background:rgba(255,70,90,.16)}
 @media(max-width:650px){.profileEditActions{justify-content:stretch}.profileEditActions>*{flex:1;width:100%;box-sizing:border-box}}
 </style>
+
+<style id="v20-7-community-note-css">
+.v207CloudNote{margin-top:10px;padding:10px 12px;border-radius:12px;border:1px solid rgba(54,220,255,.14);background:rgba(54,220,255,.04);color:#8faabd;font-size:9px}
+</style>
+
+<script id="v20-9-jersey-save-definitive">
+(function(){
+  // V20.9 — Corrección definitiva: el número de camiseta se guarda en players
+  // y se replica en todas las fichas team_players del jugador.
+  window.shSaveProfile=async function(){
+    const btn=document.getElementById('shProfileBtn'); if(btn)btn.disabled=true;
+    const out=document.getElementById('shProfileMsg');
+    const escV=v=>typeof window.esc==='function'?window.esc(String(v??'')):String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+    try{
+      const sb=window.shSupabase; const u=window.shAuthUser;
+      if(!sb||!u)throw new Error('Debes iniciar sesión para guardar tu perfil.');
+      let photo=document.getElementById('shPPhoto')?.value.trim()||null;
+      const f=document.getElementById('v19PhotoFile')?.files?.[0];
+      if(f&&typeof window.imageToDataURL==='function')photo=await window.imageToDataURL(f);
+      else if(f){
+        photo=await new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(r.result);r.onerror=reject;r.readAsDataURL(f)})
+      }
+      const rawNum=document.getElementById('v19ProfileNum')?.value?.trim()??'';
+      const jerseyNum=rawNum===''?null:Number(rawNum);
+      if(jerseyNum!==null&&(!Number.isInteger(jerseyNum)||jerseyNum<0||jerseyNum>99))throw new Error('El número de camiseta debe ser un entero entre 0 y 99.');
+      const name=document.getElementById('shPName')?.value.trim()||'';
+      const city=document.getElementById('shPCity')?.value.trim()||'Chile';
+      const position=document.getElementById('shPPos')?.value||'';
+      const height=Number(document.getElementById('shPHeight')?.value)||null;
+      const hand=document.getElementById('shPHand')?.value||null;
+      const notes=document.getElementById('shPNotes')?.value.trim()||null;
+
+      // 1) Perfil de cuenta
+      const {error:profErr}=await sb.from('profiles').update({
+        full_name:name,city,position,photo_url:photo,birth_date:null,
+        height_cm:height,dominant_hand:hand,notes
+      }).eq('id',u.id);
+      if(profErr)throw profErr;
+
+      // 2) Buscar la ficha real del jugador. Nunca usar una variable local de otra función.
+      const {data:found,error:findErr}=await sb.from('players')
+        .select('id,name,profile_id,jersey_number').eq('profile_id',u.id).limit(1);
+      if(findErr)throw findErr;
+      let player=found?.[0]||null;
+
+      // Si la cuenta ya es jugador, actualizar su ficha completa.
+      if(player){
+        const {error:upErr}=await sb.from('players').update({
+          name:name||player.name, jersey_number:jerseyNum, city, position,
+          photo_url:photo, height_cm:height, dominant_hand:hand, notes
+        }).eq('id',player.id);
+        if(upErr)throw upErr;
+      }else{
+        // Si todavía no existe ficha, crearla para que el número no se pierda.
+        const {data:created,error:createErr}=await sb.from('players').insert({
+          name:name||u.email?.split('@')[0]||'Jugador', jersey_number:jerseyNum,
+          city, position, photo_url:photo, height_cm:height,
+          dominant_hand:hand, notes, profile_id:u.id
+        }).select('id,name,profile_id,jersey_number').single();
+        if(createErr)throw createErr;
+        player=created;
+      }
+
+      // 3) Sincronizar el número en cada equipo donde esté inscrito.
+      const {data:teamRows,error:teamReadErr}=await sb.from('team_players')
+        .select('team_id,player_id').eq('player_id',player.id);
+      if(teamReadErr)throw teamReadErr;
+      for(const r of (teamRows||[])){
+        const {error:teamErr}=await sb.from('team_players').update({jersey_number:jerseyNum})
+          .eq('team_id',r.team_id).eq('player_id',r.player_id);
+        if(teamErr)throw teamErr;
+      }
+
+      if(out)out.innerHTML='✅ Número de camiseta <b>#'+escV(jerseyNum??'—')+'</b> guardado correctamente.';
+      setTimeout(()=>{
+        try{window.shCloseModal&&window.shCloseModal()}catch(e){}
+        try{window.shRenderLoggedAccount&&window.shRenderLoggedAccount()}catch(e){}
+        try{window.shSyncTopUser&&window.shSyncTopUser()}catch(e){}
+      },700);
+    }catch(e){
+      console.error('V20.9 guardar perfil:',e);
+      if(out)out.innerHTML='❌ '+escV(e?.message||e);
+    }finally{if(btn)btn.disabled=false;}
+  };
+})();
+</script>
+
+<script id="v21-community-definitive-fix">
+(function(){
+  'use strict';
+  const SB=()=>window.shSupabase||(typeof shSupabase!=='undefined'?shSupabase:null);
+  const USER=()=>window.shAuthUser||(typeof shAuthUser!=='undefined'?shAuthUser:null);
+  const esc=v=>typeof window.esc==='function'?window.esc(v??''):String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  const notify=m=>{try{if(typeof window.toast==='function')window.toast(m);else alert(m)}catch(e){alert(m)}};
+  function openModal(title,body){
+    if(typeof window.forceModal==='function')return window.forceModal(title,body);
+    if(typeof window.modal13==='function')return window.modal13(title,body);
+    if(typeof window.modalX==='function')return window.modalX(title,body);
+    const m=document.getElementById('shAuthModal');
+    if(!m)return null;
+    m.innerHTML='<div class="sh13ModalCard"><div class="sh13ModalHead"><h2>'+title+'</h2><button class="sh13Close" onclick="shCloseModal()">✕</button></div>'+body+'</div>';
+    m.classList.add('open');m.style.display='flex';m.style.visibility='visible';m.style.opacity='1';m.style.pointerEvents='auto';m.style.zIndex='99999';
+    return m;
+  }
+  async function ensureUser(){
+    let u=USER(),sb=SB();
+    if(!u&&sb?.auth?.getUser){try{u=(await sb.auth.getUser()).data?.user||null}catch(e){}}
+    if(u)window.shAuthUser=u;
+    return u;
+  }
+  function errText(e){return e?.message||e?.details||e?.hint||e?.code||String(e||'Error desconocido')}
+
+  window.shCreateTeam=function(){
+    openModal('🏀 Crear equipo','<div class="sh13Form v21CommunityForm"><div class="sh13Notice">Crea tu equipo y quedarás automáticamente como <b>Administrador</b>.</div><input id="shTeamName" maxlength="100" placeholder="Nombre del equipo"><input id="shTeamCategory" maxlength="50" placeholder="Categoría · U15, U18, Adultos, +40"><input id="shTeamCity" maxlength="80" placeholder="Ciudad"><textarea id="shTeamDesc" maxlength="300" placeholder="Descripción breve del equipo (opcional)"></textarea><button id="shTeamBtn" class="sh13Btn primary" onclick="shSaveTeam()">🚀 Crear equipo</button><div id="shTeamMsg" class="authMsg"></div></div>');
+  };
+
+  window.shSaveTeam=async function(){
+    const sb=SB(),u=await ensureUser();
+    const name=document.getElementById('shTeamName')?.value.trim();
+    const msg=document.getElementById('shTeamMsg');
+    if(!sb||!u){if(msg)msg.innerHTML='❌ Debes iniciar sesión.';return}
+    if(!name){if(msg)msg.innerHTML='⚠️ Escribe el nombre del equipo.';return}
+    const btn=document.getElementById('shTeamBtn');if(btn)btn.disabled=true;
+    if(msg)msg.innerHTML='⏳ Creando equipo en Supabase…';
+    try{
+      const {data,error}=await sb.rpc('create_team_secure',{p_name:name,p_category:document.getElementById('shTeamCategory')?.value.trim()||'Adultos',p_city:document.getElementById('shTeamCity')?.value.trim()||'Chile'});
+      if(error)throw error;
+      const team=Array.isArray(data)?data[0]:data;
+      if(!team?.id)throw new Error('Supabase no devolvió el equipo creado.');
+      const desc=document.getElementById('shTeamDesc')?.value.trim();
+      if(desc){const {error:de}=await sb.from('teams').update({description:desc}).eq('id',team.id);if(de)console.warn('Descripción:',de)}
+      if(typeof window.shCloseModal==='function')window.shCloseModal();
+      notify('🏀 Equipo creado correctamente · Código '+(team.invite_code||'generado'));
+      if(typeof window.shRenderLoggedAccount==='function')await window.shRenderLoggedAccount();
+    }catch(e){
+      if(msg)msg.innerHTML='❌ '+esc(errText(e))+'<br><small>Si aparece "function not found", ejecuta el SQL V21 que acompaña esta versión.</small>';
+    }finally{if(btn)btn.disabled=false}
+  };
+
+  window.shJoinTeam=function(){
+    openModal('🔗 Unirme a un equipo','<div class="sh13Form v21CommunityForm"><div class="sh13Notice">Ingresa el código que te entregó el administrador. Se enviará una solicitud de ingreso al equipo.</div><input id="shJoinCode" maxlength="20" placeholder="SH-ABCD-1234" style="text-transform:uppercase"><textarea id="shJoinMessage" maxlength="250" placeholder="Mensaje para el equipo (opcional)"></textarea><button id="shJoinBtn" class="sh13Btn primary" onclick="shSendJoin()">📨 Solicitar ingreso</button><div id="shJoinMsg" class="authMsg"></div></div>');
+  };
+
+  window.shSendJoin=async function(){
+    const sb=SB(),u=await ensureUser();const msg=document.getElementById('shJoinMsg');
+    const code=(document.getElementById('shJoinCode')?.value||'').trim().toUpperCase();
+    if(!sb||!u){if(msg)msg.innerHTML='❌ Debes iniciar sesión.';return}
+    if(!code){if(msg)msg.innerHTML='⚠️ Ingresa el código del equipo.';return}
+    const btn=document.getElementById('shJoinBtn');if(btn)btn.disabled=true;if(msg)msg.innerHTML='⏳ Buscando equipo…';
+    try{
+      const {data,error}=await sb.rpc('join_team_by_code_secure',{p_code:code,p_message:document.getElementById('shJoinMessage')?.value.trim()||null});
+      if(error)throw error;
+      const r=Array.isArray(data)?data[0]:data;
+      if(r?.status==='already_member')msg.innerHTML='ℹ️ Ya perteneces a <b>'+esc(r.team_name)+'</b>.';
+      else msg.innerHTML='✅ Solicitud enviada a <b>'+esc(r?.team_name||'el equipo')+'</b>. El administrador podrá aprobarla.';
+    }catch(e){if(msg)msg.innerHTML='❌ '+esc(errText(e))+'<br><small>Revisa que el código sea correcto y que el SQL V21 esté ejecutado.</small>'}
+    finally{if(btn)btn.disabled=false}
+  };
+
+  window.shExploreTeams=async function(){
+    const sb=SB(),u=await ensureUser();if(!sb||!u){notify('🔐 Debes iniciar sesión.');return}
+    openModal('🌎 Equipos de STATS HUB CHILE','<div id="shExploreTeamsBox" class="sh13Empty">⏳ Cargando equipos públicos…</div>');
+    const box=()=>document.getElementById('shExploreTeamsBox');
+    try{
+      const {data:teams,error}=await sb.rpc('list_public_teams_secure');
+      if(error)throw error;
+      const all=Array.isArray(teams)?teams:[];
+      if(!all.length){box().innerHTML='<div class="v21Empty">🌎 No hay equipos públicos registrados todavía.</div>';return}
+      let html='<div class="v21ExploreIntro"><b>🌎 Comunidad deportiva</b><span>'+all.length+' equipos registrados</span></div><div class="v21TeamGrid">';
+      for(const t of all){
+        let players=[];
+        try{const r=await sb.rpc('list_public_team_players_secure',{p_team_id:t.id});if(!r.error)players=Array.isArray(r.data)?r.data:[];}catch(e){}
+        html+='<article class="v21TeamCard"><div class="v21TeamTop"><div class="v21TeamLogo">🏀</div><div><b>'+esc(t.name)+'</b><small>'+esc(t.category||'Adultos')+' · '+esc(t.city||'Chile')+'</small></div></div><div class="v21TeamMeta"><span>👥 '+players.length+' jugadores</span><span>🟢 PÚBLICO</span></div>';
+        if(players.length){html+='<div class="v21Roster">'+players.map(p=>'<button class="v21Player" type="button" onclick="shOpenCloudPlayerProfile(\''+esc(t.id)+'\',\''+esc(p.id)+'\')"><div class="v21PlayerPhoto">'+(p.photo_url?'<img src="'+esc(p.photo_url)+'">':esc((p.name||'J').split(/\s+/).slice(0,2).map(x=>x[0]).join('').toUpperCase()))+'</div><div><b>'+esc(p.name||'Jugador')+'</b><small>#'+esc(p.jersey_number??'—')+' · '+esc(p.position||'Jugador')+'</small></div></button>').join('')+'</div>'}
+        else html+='<div class="v21Private">Este equipo todavía no tiene jugadores activos.</div>';
+        html+='<button class="sh13Btn" style="width:100%;margin-top:9px" onclick="shOpenPublicTeam(\''+esc(t.id)+'\')">👥 Ver plantilla completa</button></article>';
+      }
+      html+='</div>';if(box())box().outerHTML=html;
+    }catch(e){if(box())box().innerHTML='<div class="v21Empty">❌ '+esc(errText(e))+'</div>'}
+  };
+
+  window.shOpenPublicTeam=async function(teamId){
+    const sb=SB();if(!sb)return;
+    try{
+      const {data:teams,error}=await sb.rpc('list_public_teams_secure');if(error)throw error;
+      const t=(teams||[]).find(x=>String(x.id)===String(teamId));if(!t)throw new Error('Equipo no encontrado.');
+      const {data:players,error:pe}=await sb.rpc('list_public_team_players_secure',{p_team_id:teamId});if(pe)throw pe;
+      const cards=(players||[]).map(p=>'<button class="v21Player" type="button" onclick="shOpenCloudPlayerProfile(\''+esc(teamId)+'\',\''+esc(p.id)+'\')"><div class="v21PlayerPhoto">'+(p.photo_url?'<img src="'+esc(p.photo_url)+'">':esc((p.name||'J').split(/\s+/).slice(0,2).map(x=>x[0]).join('').toUpperCase()))+'</div><div><b>'+esc(p.name||'Jugador')+'</b><small>#'+esc(p.jersey_number??'—')+' · '+esc(p.position||'Jugador')+'</small></div></button>').join('');
+      openModal('👥 '+esc(t.name),'<div class="v21ExploreIntro"><b>'+esc(t.category||'Adultos')+' · '+esc(t.city||'Chile')+'</b><span>'+((players||[]).length)+' jugadores activos</span></div><div class="v21Roster v21RosterFull">'+(cards||'<div class="v21Empty">No hay jugadores activos.</div>')+'</div>');
+    }catch(e){openModal('👥 Equipo','<div class="v21Empty">❌ '+esc(errText(e))+'</div>')}
+  };
+
+  const prev=window.shRenderLoggedAccount;
+  if(prev){window.shRenderLoggedAccount=async function(){const r=await prev.apply(this,arguments);try{const page=document.getElementById('accountCommunityPage');if(page&&!page.querySelector('#v21ExplorePanel')){const panel=document.createElement('div');panel.id='v21ExplorePanel';panel.className='sh13Panel v21ExplorePanel';panel.innerHTML='<div class="v21ExploreHead"><div><h2>🌎 Comunidad STATS HUB CHILE</h2><p>Todos los usuarios autenticados pueden explorar equipos públicos.</p></div><button class="sh13Btn primary" onclick="shExploreTeams()">🌎 Explorar equipos</button></div><div class="v21CloudNote">☁️ Comunidad compartida entre cuentas · equipos, jugadores y números de camiseta.</div>';const layout=page.querySelector('.sh13Layout');if(layout)layout.insertAdjacentElement('afterend',panel);else page.appendChild(panel)}}catch(e){}return r}}
+})();
+</script>
+<style id="v21-community-css">
+.v21ExplorePanel{margin-top:14px}.v21ExploreHead{display:flex;align-items:center;justify-content:space-between;gap:14px}.v21ExploreHead h2{margin:0;font-size:14px}.v21ExploreHead p{margin:5px 0 0;color:#8da4b7;font-size:10px}.v21CloudNote{margin-top:10px;padding:10px 12px;border-radius:12px;border:1px solid rgba(54,220,255,.14);background:rgba(54,220,255,.04);color:#8faabd;font-size:9px}.v21CommunityForm input,.v21CommunityForm textarea{width:100%;box-sizing:border-box;margin-top:8px}.v21ExploreIntro{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:12px;border:1px solid rgba(75,190,230,.18);border-radius:14px;background:rgba(20,50,72,.45);margin-bottom:10px}.v21ExploreIntro b{display:block;font-size:11px}.v21ExploreIntro span{font-size:9px;color:#91a9ba}.v21TeamGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;max-height:62vh;overflow:auto}.v21TeamCard{border:1px solid rgba(80,170,215,.18);border-radius:16px;padding:12px;background:linear-gradient(145deg,#10273b,#081521)}.v21TeamTop{display:flex;gap:10px;align-items:center}.v21TeamLogo{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;background:rgba(54,220,255,.1);font-size:20px}.v21TeamTop b{font-size:12px}.v21TeamTop small{display:block;color:#8da4b7;font-size:9px;margin-top:3px}.v21TeamMeta{display:flex;justify-content:space-between;gap:8px;margin:10px 0;color:#91a9ba;font-size:8px}.v21Roster{display:grid;gap:6px;max-height:220px;overflow:auto}.v21Player{display:grid;grid-template-columns:40px 1fr;gap:8px;align-items:center;text-align:left;width:100%;border:1px solid rgba(100,160,190,.12);border-radius:11px;background:rgba(255,255,255,.025);padding:7px;color:#fff;cursor:pointer}.v21Player:hover{border-color:rgba(54,220,255,.38);transform:translateY(-1px)}.v21PlayerPhoto{width:40px;height:40px;border-radius:11px;overflow:hidden;display:grid;place-items:center;background:rgba(54,220,255,.08);font-weight:900;color:#9eefff}.v21PlayerPhoto img{width:100%;height:100%;object-fit:cover}.v21Player b{font-size:9px}.v21Player small{display:block;color:#8da4b7;font-size:8px;margin-top:2px}.v21RosterFull{max-height:60vh}.v21Empty,.v21Private{padding:12px;border:1px dashed rgba(130,160,180,.18);border-radius:10px;color:#91a9ba;font-size:9px}@media(max-width:650px){.v21ExploreHead{align-items:stretch;flex-direction:column}.v21ExploreHead .sh13Btn{width:100%}.v21TeamGrid{grid-template-columns:1fr}.v21ExploreIntro{align-items:flex-start;flex-direction:column}}
+</style>
+<script id="v22-2-public-player-profile-final">
+(function(){
+  function sh22Client(){return window.shSupabase||window.supabaseClient||window.sb||null}
+  function sh22Esc(v){try{return esc(String(v??''))}catch(e){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}}
+  function sh22Num(v){return Number(v||0)}
+  function sh22Avg(v,pj){return pj?(sh22Num(v)/pj).toFixed(1):'0.0'}
+  function sh22Initials(n){return String(n||'Jugador').trim().split(/\s+/).slice(0,2).map(x=>x[0]||'').join('').toUpperCase()||'J'}
+  function sh22Modal(body){
+    let m=document.getElementById('shAuthModal');
+    if(!m){m=document.createElement('div');m.id='shAuthModal';m.className='communityModal';document.body.appendChild(m)}
+    m.innerHTML='<div class="sh13ModalCard v19ProModal"><div class="sh13ModalHead"><h2>🏀 PERFIL PROFESIONAL DEL JUGADOR</h2><button class="sh13Close" type="button" onclick="shCloseModal()">✕</button></div>'+body+'</div>';
+    m.classList.add('open');m.style.display='flex';m.style.visibility='visible';m.style.opacity='1';m.style.pointerEvents='auto';m.style.zIndex='99999';
+  }
+  async function sh22Load(teamId,playerId){
+    const sb=sh22Client(); if(!sb?.from) throw new Error('Supabase no está disponible.');
+    const [{data:row,error:re},{data:team,error:te}]=await Promise.all([
+      sb.from('team_players').select('player_id,jersey_number,active,players(id,name,jersey_number,position,photo_url,profile_id,city,birth_date,height_cm,dominant_hand,notes)').eq('team_id',teamId).eq('player_id',playerId).maybeSingle(),
+      sb.from('teams').select('id,name,city,category').eq('id',teamId).maybeSingle()
+    ]);
+    if(re) throw re; if(!row?.players) throw new Error('No se encontró al jugador en la plantilla de este equipo.');
+    return {row,team:team||{}};
+  }
+  function sh22LocalStats(p){
+    let a={pj:0,pts:0,reb:0,ast:0,stl:0,blk:0,tov:0,pf:0};
+    try{
+      const arr=typeof window.playerAggregate==='function' ? window.playerAggregate : null;
+      const players=(typeof db!=='undefined'&&Array.isArray(db.players))?db.players:[];
+      const idx=players.findIndex(x=>String(x.cloudPlayerId||x.cloud_id||x.id||'')===String(p.id||'') || String(x.name||'').trim().toLowerCase()===String(p.name||'').trim().toLowerCase());
+      if(arr&&idx>=0) a=Object.assign(a,arr(idx)||{});
+    }catch(e){}
+    return a;
+  }
+  window.shOpenCloudPlayerProfile=async function(teamId,playerId){
+    try{
+      sh22Modal('<div class="sh13Empty">⏳ Cargando ficha desde la comunidad…</div>');
+      const {row,team}=await sh22Load(teamId,playerId);
+      const p=row.players||{};
+      const a=sh22LocalStats(p);
+      const jersey=row.jersey_number??p.jersey_number??'—';
+      const photo=p.photo_url?'<img src="'+sh22Esc(p.photo_url)+'" alt="Foto del jugador">':'<div class="v19PhotoFallback">'+sh22Esc(sh22Initials(p.name))+'</div>';
+      const production=a.pts+a.reb+a.ast+a.stl+a.blk-a.tov;
+      const body='<div class="v19Profile"><section class="v19Hero"><div class="v19PhotoBox">'+photo+'<div class="v19Jersey">#'+sh22Esc(jersey)+'</div><div class="v19Camera">📷</div></div><div class="v19HeroInfo"><span class="v19Status"><i></i> Jugador activo</span><h1>'+sh22Esc(p.name||'Jugador')+'</h1><div class="v19Meta"><span>🇨🇱 '+sh22Esc(p.city||team.city||'Chile')+'</span><span>🏀 Equipo: '+sh22Esc(team.name||'Equipo')+'</span><span>🎽 '+sh22Esc(p.position||'Posición no indicada')+'</span><span>👕 #'+sh22Esc(jersey)+'</span><span>📏 '+sh22Esc(p.height_cm?p.height_cm+' cm':'Estatura no indicada')+'</span><span>✋ '+sh22Esc(p.dominant_hand||'Mano no indicada')+'</span></div><div class="v19Quote">Ficha deportiva compartida por STATS HUB CHILE</div></div><div class="v19Actions"><button class="v19Action" onclick="shCloseModal();setTimeout(function(){window.shProfile&&window.shProfile()},120)">✎ Editar mi perfil</button><button class="v19Action secondary" onclick="try{navigator.clipboard?.writeText(location.href)}catch(e){}">↗ Compartir perfil</button><div class="v19MiniInfo"><div><small>PLANTILLA</small><b>'+sh22Esc(team.name||'Equipo')+'</b></div><div><small>ESTADO</small><b>'+((row.active===false)?'Inactivo':'Activo')+'</b></div></div></div></section><section class="v19Body"><div class="v19StatGrid">'+[['🎮','PARTIDOS JUGADOS',a.pj,''],['🏀','PUNTOS TOTALES',a.pts,sh22Avg(a.pts,a.pj)+' PPG'],['🏀','REBOTES',a.reb,sh22Avg(a.reb,a.pj)+' RPG'],['🤝','ASISTENCIAS',a.ast,sh22Avg(a.ast,a.pj)+' APG'],['🛡️','ROBOS',a.stl,sh22Avg(a.stl,a.pj)+' SPG'],['🚫','TAPONES',a.blk,sh22Avg(a.blk,a.pj)+' BPG'],['↔','PÉRDIDAS',a.tov,sh22Avg(a.tov,a.pj)+' TOV'],['✋','FALTAS',a.pf,sh22Avg(a.pf,a.pj)+' PF']].map(x=>'<div class="v19Stat"><div class="v19StatIcon">'+x[0]+'</div><b>'+sh22Num(x[2])+'</b><small>'+x[1]+'</small><em>'+x[3]+'</em></div>').join('')+'</div><div class="v19Columns"><div class="v19Card"><div class="v19CardTitle"><span>👤 Ficha deportiva</span><span>COMUNIDAD</span></div><div class="v19GameLine" style="padding:14px;font-size:12px;line-height:1.8">Nombre: <b>'+sh22Esc(p.name||'—')+'</b><br>Número de camiseta: <b>#'+sh22Esc(jersey)+'</b><br>Posición: <b>'+sh22Esc(p.position||'—')+'</b><br>Ciudad: <b>'+sh22Esc(p.city||team.city||'—')+'</b><br>Equipo: <b>'+sh22Esc(team.name||'—')+'</b></div></div><div class="v19Card"><div class="v19CardTitle"><span>📊 Estadísticas</span><span>DATOS DISPONIBLES EN ESTE DISPOSITIVO</span></div><div class="v19GameLine" style="padding:14px;font-size:12px;line-height:1.8">Esta ficha está conectada a la comunidad. Las estadísticas de partidos se mostrarán cuando esos partidos estén sincronizados con este dispositivo o con la futura estadística cloud.</div></div></div><div class="v19Footer">STATS HUB CHILE · EL BÁSQUETBOL EN DATOS</div></section></div>';
+      sh22Modal(body);
+    }catch(e){sh22Modal('<div class="sh13Empty">❌ No se pudo cargar el perfil: '+sh22Esc(e?.message||e)+'</div>')}
+  };
+})();
+</script>
